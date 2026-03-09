@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kutup Araştırmacıları Psikolojik Durum Tarayıcısı</title>
+    <title>PolarMind Ön Tarama ve Takip</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #e0f2fe; /* Buz mavisi arka plan */
+            --bg-color: #e0f2fe;
             --card-bg: #ffffff;
-            --primary: #0284c7; /* Koyu mavi */
+            --primary: #0284c7;
             --primary-hover: #0369a1;
             --text-main: #1e293b;
             --text-muted: #64748b;
             --border: #e2e8f0;
             --danger: #ef4444;
             --success: #10b981;
+            --accent: #f59e0b;
         }
 
         body {
@@ -31,117 +33,50 @@
 
         .container {
             background-color: var(--card-bg);
-            max-width: 600px;
+            max-width: 650px;
             width: 100%;
-            padding: 40px;
+            padding: 30px;
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
 
-        h1 {
-            color: var(--primary);
-            font-size: 24px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
+        h1 { color: var(--primary); font-size: 24px; text-align: center; margin-bottom: 5px; }
+        p.subtitle { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 25px; }
 
-        p.subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-
-        .question-block {
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .question-text {
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .options-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .option-label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 12px;
-            color: var(--text-muted);
-            cursor: pointer;
-        }
-
-        .option-label input {
-            margin-bottom: 5px;
-            transform: scale(1.2);
-            accent-color: var(--primary);
-        }
-
-        .scale-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 5px;
-        }
+        .question-block { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+        .question-text { font-weight: 600; margin-bottom: 10px; display: block; }
+        .options-container { display: flex; justify-content: space-between; align-items: center; gap: 5px; }
+        .option-label { display: flex; flex-direction: column; align-items: center; font-size: 12px; color: var(--text-muted); cursor: pointer; }
+        .option-label input { margin-bottom: 5px; transform: scale(1.2); accent-color: var(--primary); }
+        .scale-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 5px; }
 
         button {
-            width: 100%;
-            padding: 14px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 20px;
+            width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none;
+            border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 15px;
         }
+        button:hover { background-color: var(--primary-hover); }
+        button.secondary { background-color: var(--text-muted); }
+        button.secondary:hover { background-color: #475569; }
 
-        button:hover {
-            background-color: var(--primary-hover);
-        }
+        #results-screen, #history-screen { display: none; }
 
-        #results-screen {
-            display: none;
-        }
-
-        .result-card {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-weight: 500;
-        }
-
+        .result-card { padding: 15px; border-radius: 8px; margin-bottom: 10px; font-weight: 500; font-size: 14px; }
         .risk-high { background-color: #fee2e2; color: #b91c1c; border-left: 5px solid #ef4444; }
         .risk-low { background-color: #d1fae5; color: #047857; border-left: 5px solid #10b981; }
 
-        .disclaimer {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-align: center;
-            margin-top: 20px;
-            border-top: 1px solid var(--border);
-            padding-top: 15px;
+        .motivation-box {
+            background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px;
+            padding: 20px; margin: 20px 0; text-align: center;
         }
+        .motivation-title { font-weight: bold; color: #b45309; margin-bottom: 10px; font-size: 16px; }
+        .motivation-task { color: #92400e; font-size: 15px; font-style: italic; }
 
-        .error {
-            color: var(--danger);
-            font-size: 14px;
-            text-align: center;
-            margin-bottom: 15px;
-            display: none;
-        }
+        .chart-container { margin-top: 20px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
+        
+        .error { color: var(--danger); font-size: 14px; text-align: center; margin-bottom: 15px; display: none; }
+        .disclaimer { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border); }
+        
+        .nav-buttons { display: flex; gap: 10px; }
     </style>
 </head>
 <body>
@@ -149,34 +84,49 @@
 <div class="container" id="app-container">
     
     <div id="survey-screen">
-        <h1>PolarMind Ön Tarama</h1>
-        <p class="subtitle">Son 2 hafta içerisindeki hislerinizi düşünerek aşağıdaki ifadelere ne kadar katıldığınızı 1 (Hiç katılmıyorum) ile 5 (Çok katılıyorum) arasında puanlayın.</p>
+        <h1>PolarMind Günlük Takip</h1>
+        <p class="subtitle">Bugünkü hislerinizi düşünerek 1 (Hiç katılmıyorum) ile 5 (Çok katılıyorum) arasında puanlayın.</p>
         
-        <div class="error" id="error-msg">Lütfen sonuçları görmeden önce tüm soruları yanıtlayın.</div>
+        <div class="error" id="error-msg">Lütfen tüm soruları yanıtlayın.</div>
 
-        <form id="survey-form">
-            </form>
+        <form id="survey-form"></form>
 
-        <button onclick="calculateResults()">Sonuçları Analiz Et</button>
+        <div class="nav-buttons">
+            <button onclick="calculateResults()">Sonuçları Analiz Et</button>
+            <button class="secondary" onclick="showHistory()" style="flex: 0.5;">Geçmişi Gör</button>
+        </div>
     </div>
 
     <div id="results-screen">
-        <h1>Tarama Sonuçları</h1>
-        <p class="subtitle">Yanıtlarınıza göre oluşturulan ön değerlendirme raporu aşağıdadır.</p>
+        <h1>Günün Analizi</h1>
         
         <div id="results-content"></div>
-
-        <button onclick="location.reload()" style="background-color: var(--text-muted);">Yeni Tarama Başlat</button>
         
-        <p class="disclaimer">
-            <strong>Yasal Uyarı:</strong> Bu uygulama profesyonel bir tıbbi teşhis aracı değildir. Sadece ön farkındalık yaratmak amacıyla tasarlanmıştır. Herhangi bir psikolojik rahatsızlık şüphesinde mutlaka istasyon doktoruna veya bir ruh sağlığı profesyoneline başvurulmalıdır.
-        </p>
+        <div class="motivation-box">
+            <div class="motivation-title">🎯 Günün Görevi</div>
+            <div class="motivation-task" id="motivation-text">Görev yükleniyor...</div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="secondary" onclick="location.reload()">Ana Ekrana Dön</button>
+            <button onclick="showHistory()">Gelişim Grafiğini İncele</button>
+        </div>
+    </div>
+
+    <div id="history-screen">
+        <h1>Gelişim Grafiği</h1>
+        <p class="subtitle">Son 14 testinizin risk ortalamaları (Puan düştükçe risk artar)</p>
+
+        <div class="chart-container">
+            <canvas id="historyChart"></canvas>
+        </div>
+
+        <button class="secondary" onclick="location.reload()">Ana Ekrana Dön</button>
     </div>
 
 </div>
 
 <script>
-    // Sorular ve ölçtükleri kategoriler (Ters mantık: Puan düşükse risk yüksek)
     const questions = [
         { id: "q1", text: "Kendimi enerjik hissettim.", category: "depresyon" },
         { id: "q2", text: "Günlük faaliyetlerimle ilgilenebildim.", category: "depresyon" },
@@ -190,9 +140,33 @@
         { id: "q10", text: "Bulunduğum ortamla uyum içinde hissettim.", category: "anksiyete" }
     ];
 
+    // Motivasyon ve Görev Havuzu
+    const tasks = {
+        lowRisk: [
+            "Bugün harika gidiyorsun! Ekip arkadaşlarına pozitif enerjini yansıt.",
+            "Zihnin berrak görünüyor, bugün planladığın bir araştırmaya odaklanmak için harika bir gün.",
+            "Bu dengeyi korumak için bugün sevdiğin bir müziği dinlemeyi veya kitap okumayı unutma."
+        ],
+        uyku: [
+            "Yatmadan 1 saat önce ekranlardan (telefon/bilgisayar) uzaklaş ve sadece dinlen.",
+            "Uyku kaliteni artırmak için kafein tüketimini bugün erken saatlerde kesmeye çalış.",
+            "Uyuduğun odanın tamamen karanlık olduğundan emin ol ve uyku öncesi hafif bir germe egzersizi yap."
+        ],
+        depresyon: [
+            "Bugün en az 15 dakika gün ışığı lambası (SAD lambası) altında vakit geçir.",
+            "Kendini zorlamadan, sadece bir ekip arkadaşınla 10 dakikalık kısa bir sohbet et.",
+            "Geçmişte başardığın zor bir görevi hatırlayıp kendini takdir et."
+        ],
+        anksiyete: [
+            "Bugün 5 dakikanı ayırarak sadece derin nefes alıp ver (4 saniye al, 7 saniye tut, 8 saniye ver).",
+            "Zihnini sakinleştirmek için bugün aynı anda birden fazla iş yapma, tek bir göreve odaklan.",
+            "Bugün haberleri veya stres yaratan dış verileri okumaya ara ver."
+        ]
+    };
+
     const form = document.getElementById('survey-form');
 
-    // Soruları HTML'e yazdırma fonksiyonu
+    // Soruları HTML'e ekle
     questions.forEach((q, index) => {
         const questionHtml = `
             <div class="question-block">
@@ -205,10 +179,7 @@
                         </label>
                     `).join('')}
                 </div>
-                <div class="scale-labels">
-                    <span>Hiç Katılmıyorum</span>
-                    <span>Çok Katılıyorum</span>
-                </div>
+                <div class="scale-labels"><span>Hiç Katılmıyorum</span><span>Çok Katılıyorum</span></div>
             </div>
         `;
         form.innerHTML += questionHtml;
@@ -219,33 +190,24 @@
         const errorMsg = document.getElementById('error-msg');
         let answers = {};
         
-        // Tüm sorular cevaplandı mı kontrolü
         for (let q of questions) {
             const val = formData.get(q.id);
-            if (!val) {
-                errorMsg.style.display = 'block';
-                return;
-            }
+            if (!val) { errorMsg.style.display = 'block'; return; }
             answers[q.id] = parseInt(val);
         }
         
         errorMsg.style.display = 'none';
 
-        // Kategorilere göre puanları toplama
-        let scores = { depresyon: { total: 0, count: 0 }, anksiyete: { total: 0, count: 0 }, uyku: { total: 0, count: 0 } };
+        let scores = { depresyon: { t: 0, c: 0 }, anksiyete: { t: 0, c: 0 }, uyku: { t: 0, c: 0 } };
+        questions.forEach(q => { scores[q.category].t += answers[q.id]; scores[q.category].c += 1; });
 
-        questions.forEach(q => {
-            scores[q.category].total += answers[q.id];
-            scores[q.category].count += 1;
-        });
-
-        // Ortalamaları hesapla (1-5 arası)
         const avgScores = {
-            depresyon: scores.depresyon.total / scores.depresyon.count,
-            anksiyete: scores.anksiyete.total / scores.anksiyete.count,
-            uyku: scores.uyku.total / scores.uyku.count
+            depresyon: (scores.depresyon.t / scores.depresyon.c).toFixed(1),
+            anksiyete: (scores.anksiyete.t / scores.anksiyete.c).toFixed(1),
+            uyku: (scores.uyku.t / scores.uyku.c).toFixed(1)
         };
 
+        saveDataLocally(avgScores);
         displayResults(avgScores);
     }
 
@@ -256,39 +218,86 @@
         const resultsContent = document.getElementById('results-content');
         resultsContent.innerHTML = '';
 
-        // Eşik değerleri (Ortalama 3'ün altındaysa yüksek risk)
         const categories = [
-            { key: 'uyku', name: 'Uyku Bozukluğu Riski', desc: 'Uyku kalitenizde ve sürenizde ciddi düzensizlikler olabilir.' },
-            { key: 'depresyon', name: 'Depresif Belirti Riski', desc: 'Enerji düşüklüğü ve günlük faaliyetlere karşı ilgi kaybı yaşanıyor olabilir.' },
-            { key: 'anksiyete', name: 'Anksiyete (Kaygı) Riski', desc: 'Ortama uyum sağlama, sakin kalma ve stres yönetiminde zorlanmalar olabilir.' }
+            { key: 'uyku', name: 'Uyku Bozukluğu Riski' },
+            { key: 'depresyon', name: 'Depresif Belirti Riski' },
+            { key: 'anksiyete', name: 'Anksiyete (Kaygı) Riski' }
         ];
 
-        let hasHighRisk = false;
+        let lowestCategory = null;
+        let lowestScore = 5;
 
         categories.forEach(cat => {
-            const avg = avgScores[cat.key];
-            const isHighRisk = avg < 3.0; // 3 ve altı ortalama risk kabul edildi
+            const avg = parseFloat(avgScores[cat.key]);
+            const isHighRisk = avg < 3.0;
             
-            if (isHighRisk) hasHighRisk = true;
+            // Hangi alanda en çok zorlanıyorsa görevi ona göre seçeceğiz
+            if (avg < lowestScore) {
+                lowestScore = avg;
+                lowestCategory = cat.key;
+            }
 
-            const cardHtml = `
+            resultsContent.innerHTML += `
                 <div class="result-card ${isHighRisk ? 'risk-high' : 'risk-low'}">
-                    <strong>${cat.name}:</strong> ${isHighRisk ? 'Yüksek Riskli' : 'Normal Seviye'}
-                    <div style="font-size: 13px; margin-top: 5px; color: inherit; opacity: 0.9;">
-                        ${isHighRisk ? cat.desc : 'Şu an için bu alanda belirgin bir risk gözlemlenmedi.'}
-                    </div>
+                    <strong>${cat.name}:</strong> ${isHighRisk ? 'Yüksek Riskli' : 'Normal Seviye'} (Puan: ${avg})
                 </div>
             `;
-            resultsContent.innerHTML += cardHtml;
         });
 
-        if (hasHighRisk) {
-            resultsContent.innerHTML += `
-                <div style="margin-top: 20px; padding: 15px; background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; font-size: 14px; color: #92400e;">
-                    <strong>Öneri:</strong> Bazı alanlarda risk değerleri saptandı. Kutup şartlarının zorluğu göz önüne alındığında, bu durumları ekip doktoruyla veya tıbbi destek birimiyle paylaşmanız faydalı olacaktır.
-                </div>
-            `;
+        // Motivasyon görevini belirle
+        let taskArray = lowestScore < 3.0 ? tasks[lowestCategory] : tasks.lowRisk;
+        let randomTask = taskArray[Math.floor(Math.random() * taskArray.length)];
+        document.getElementById('motivation-text').innerText = randomTask;
+    }
+
+    function saveDataLocally(scores) {
+        let history = JSON.parse(localStorage.getItem('polarData') || '[]');
+        
+        // Sadece günün tarihini al (saat hariç)
+        const today = new Date().toLocaleDateString('tr-TR');
+        
+        history.push({ date: today, scores: scores });
+        
+        // En fazla son 14 günü tut (Hafızayı şişirmemek için)
+        if(history.length > 14) history = history.slice(-14);
+        
+        localStorage.setItem('polarData', JSON.stringify(history));
+    }
+
+    function showHistory() {
+        document.getElementById('survey-screen').style.display = 'none';
+        document.getElementById('results-screen').style.display = 'none';
+        document.getElementById('history-screen').style.display = 'block';
+
+        const history = JSON.parse(localStorage.getItem('polarData') || '[]');
+        
+        if(history.length === 0) {
+            alert("Henüz kaydedilmiş bir test sonucunuz bulunmuyor.");
+            location.reload();
+            return;
         }
+
+        const labels = history.map((item, index) => `Test ${index + 1} (${item.date})`);
+        const dataDepresyon = history.map(item => item.scores.depresyon);
+        const dataAnksiyete = history.map(item => item.scores.anksiyete);
+        const dataUyku = history.map(item => item.scores.uyku);
+
+        const ctx = document.getElementById('historyChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Depresyon', data: dataDepresyon, borderColor: '#3b82f6', tension: 0.3 },
+                    { label: 'Anksiyete', data: dataAnksiyete, borderColor: '#f59e0b', tension: 0.3 },
+                    { label: 'Uyku', data: dataUyku, borderColor: '#8b5cf6', tension: 0.3 }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { min: 1, max: 5, title: { display: true, text: 'Ortalama Puan' } } }
+            }
+        });
     }
 </script>
 
