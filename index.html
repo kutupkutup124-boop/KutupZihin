@@ -7,19 +7,21 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #e0f2fe;
+            /* Sage Green Paleti */
+            --bg-color: #f4f7f4;          /* Çok açık adaçayı / krem */
             --card-bg: #ffffff;
-            --primary: #0284c7;
-            --primary-hover: #0369a1;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --danger: #ef4444;
-            --success: #10b981;
-            --accent: #f59e0b;
-            --warning-bg: #fff7ed;
-            --warning-text: #c2410c;
-            --warning-border: #f97316;
+            --primary: #7a9b76;           /* Adaçayı Yeşili */
+            --primary-hover: #5c7a58;     /* Koyu Adaçayı */
+            --text-main: #2f3e2e;         /* Koyu yeşilimsi gri (Siyah yerine) */
+            --text-muted: #6b7b69;        /* Soluk yeşil/gri */
+            --border: #d3dbd2;            /* Hafif yeşilimsi kenarlık */
+            --danger: #d9776c;            /* Yumuşatılmış toprak/kiremit kırmızısı */
+            --success: #7a9b76;
+            --warning-bg: #fdf6ec;
+            --warning-text: #b07d54;
+            --warning-border: #dcb38f;
+            --inconsistent-bg: #fef2f2;
+            --inconsistent-text: #991b1b;
         }
 
         body {
@@ -38,48 +40,50 @@
             background-color: var(--card-bg);
             max-width: 650px;
             width: 100%;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(122, 155, 118, 0.1);
         }
 
-        h1 { color: var(--primary); font-size: 24px; text-align: center; margin-bottom: 5px; }
-        p.subtitle { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 25px; }
+        h1 { color: var(--primary); font-size: 26px; text-align: center; margin-bottom: 5px; letter-spacing: -0.5px; }
+        p.subtitle { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
 
-        .question-block { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
-        .question-text { font-weight: 600; margin-bottom: 10px; display: block; }
-        .options-container { display: flex; justify-content: space-between; align-items: center; gap: 5px; }
-        .option-label { display: flex; flex-direction: column; align-items: center; font-size: 12px; color: var(--text-muted); cursor: pointer; }
-        .option-label input { margin-bottom: 5px; transform: scale(1.2); accent-color: var(--primary); }
-        .scale-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+        .question-block { margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border); transition: background 0.3s; border-radius: 8px; }
+        .question-block:hover { background-color: #fbfcfa; }
+        .question-text { font-weight: 500; margin-bottom: 12px; display: block; padding: 0 10px; }
+        
+        .options-container { display: flex; justify-content: space-between; align-items: center; gap: 5px; padding: 0 10px; }
+        .option-label { display: flex; flex-direction: column; align-items: center; font-size: 13px; color: var(--text-muted); cursor: pointer; font-weight: 500; }
+        .option-label input { margin-bottom: 8px; transform: scale(1.3); accent-color: var(--primary); cursor: pointer; }
+        .scale-labels { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); margin-top: 8px; padding: 0 10px; }
 
         button {
-            width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none;
-            border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 15px;
+            width: 100%; padding: 15px; background-color: var(--primary); color: white; border: none;
+            border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 15px;
         }
-        button:hover { background-color: var(--primary-hover); }
-        button.secondary { background-color: var(--text-muted); }
-        button.secondary:hover { background-color: #475569; }
+        button:hover { background-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(122, 155, 118, 0.2); }
+        button.secondary { background-color: var(--text-muted); box-shadow: none; }
+        button.secondary:hover { background-color: #4a5749; }
 
         #results-screen, #history-screen { display: none; }
 
-        .result-card { padding: 15px; border-radius: 8px; margin-bottom: 10px; font-weight: 500; font-size: 14px; }
+        .result-card { padding: 18px; border-radius: 12px; margin-bottom: 12px; font-weight: 500; font-size: 14.5px; line-height: 1.5; }
         .status-needs-care { background-color: var(--warning-bg); color: var(--warning-text); border-left: 5px solid var(--warning-border); }
-        .status-good { background-color: #d1fae5; color: #047857; border-left: 5px solid #10b981; }
+        .status-good { background-color: #f3f7f3; color: var(--primary-hover); border-left: 5px solid var(--primary); }
+        .status-inconsistent { background-color: var(--inconsistent-bg); color: var(--inconsistent-text); border: 1px solid #fca5a5; font-size: 13.5px; }
 
         .motivation-box {
-            background-color: #f0fdf4; border: 1px solid #86efac; border-radius: 8px;
-            padding: 20px; margin: 20px 0; text-align: center;
+            background-color: #f3f7f3; border: 1px dashed var(--primary); border-radius: 12px;
+            padding: 22px; margin: 25px 0; text-align: center;
         }
-        .motivation-title { font-weight: bold; color: #166534; margin-bottom: 10px; font-size: 16px; }
-        .motivation-task { color: #15803d; font-size: 15px; font-style: italic; }
+        .motivation-title { font-weight: 600; color: var(--primary-hover); margin-bottom: 12px; font-size: 16px; }
+        .motivation-task { color: var(--text-main); font-size: 15px; font-style: italic; }
 
-        .chart-container { margin-top: 20px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
+        .chart-container { margin-top: 25px; padding: 15px; border: 1px solid var(--border); border-radius: 12px; background: white; }
         
-        .error { color: var(--danger); font-size: 14px; text-align: center; margin-bottom: 15px; display: none; }
-        .disclaimer { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border); }
+        .error { color: var(--danger); font-size: 14px; text-align: center; margin-bottom: 15px; display: none; font-weight: 500; }
         
-        .nav-buttons { display: flex; gap: 10px; }
+        .nav-buttons { display: flex; gap: 12px; }
     </style>
 </head>
 <body>
@@ -90,7 +94,7 @@
         <h1>PolarMind Günlük Takip</h1>
         <p class="subtitle">Bugünkü hislerinizi düşünerek 1 (Hiç katılmıyorum) ile 5 (Çok katılıyorum) arasında puanlayın.</p>
         
-        <div class="error" id="error-msg">Lütfen tüm soruları yanıtlayın.</div>
+        <div class="error" id="error-msg">Lütfen analizin doğruluğu için tüm soruları yanıtlayın.</div>
 
         <form id="survey-form"></form>
 
@@ -107,7 +111,7 @@
         <div id="results-content"></div>
         
         <div class="motivation-box">
-            <div class="motivation-title">🎯 Günün Önerisi</div>
+            <div class="motivation-title">🌿 Günün Önerisi</div>
             <div class="motivation-task" id="motivation-text">Görev yükleniyor...</div>
         </div>
 
@@ -119,48 +123,55 @@
 
     <div id="history-screen">
         <h1>Gelişim Grafiği</h1>
-        <p class="subtitle">Son 14 testinizin ortalamaları (Puan yükseldikçe durumunuz daha iyi demektir)</p>
+        <p class="subtitle">Son 14 testinizin ortalamaları (Puan yükseldikçe denge artar)</p>
 
         <div class="chart-container">
             <canvas id="historyChart"></canvas>
         </div>
 
-        <button class="secondary" onclick="location.reload()">Ana Ekrana Dön</button>
+        <button class="secondary" onclick="location.reload()" style="margin-top: 20px;">Ana Ekrana Dön</button>
     </div>
 
 </div>
 
 <script>
-    // Sorular Ruh Hali ve Uyku olarak iki ana kategoriye ayrıldı
+    /* SORU YAPISI: 
+       reverse: true -> Kişi buna "5" verirse aslında durumu kötüdür (puanı 1 sayılır).
+       pairId -> Birbiriyle çelişip çelişmediğini kontrol edeceğimiz soru çiftleri. 
+    */
     const questions = [
-        { id: "q1", text: "Kendimi enerjik hissettim.", category: "ruh_sagligi" },
-        { id: "q2", text: "Günlük faaliyetlerimle ilgilenebildim.", category: "ruh_sagligi" },
-        { id: "q3", text: "Kendimi sakin ve dengeli hissettim.", category: "ruh_sagligi" },
-        { id: "q4", text: "Günlük yaşamımdan memnuniyet duydum.", category: "ruh_sagligi" },
-        { id: "q5", text: "Günlük sorumluluklarımı yönetebildiğimi hissettim.", category: "ruh_sagligi" },
-        { id: "q6", text: "Beklenmeyen durumlarla başa çıkabildim.", category: "ruh_sagligi" },
-        { id: "q7", text: "Günlük yoğunluk seviyem beni zorlamadı.", category: "ruh_sagligi" },
-        { id: "q8", text: "Uyku sürem benim için yeterliydi.", category: "uyku" },
-        { id: "q9", text: "Uyandığımda dinlenmiş hissettim.", category: "uyku" },
-        { id: "q10", text: "Bulunduğum ortamla uyum içinde hissettim.", category: "ruh_sagligi" }
+        // Çift 1: Genel Enerji (Ruh Hali)
+        { id: "q1", text: "Bugün kendimi genel olarak enerjik hissettim.", category: "ruh_sagligi", reverse: false, pairId: 1 },
+        { id: "q2", text: "Bugün içimden hiçbir şey yapmak gelmedi.", category: "ruh_sagligi", reverse: true, pairId: 1 }, // Dolaylı depresyon
+        
+        // Çift 2: Uyku
+        { id: "q3", text: "Sabah uyandığımda kendimi dinlenmiş hissettim.", category: "uyku", reverse: false, pairId: 2 },
+        { id: "q4", text: "Gece boyunca sık sık uyandım veya yatağa dönmekte zorlandım.", category: "uyku", reverse: true, pairId: 2 },
+        
+        // Çift 3: Odaklanma ve Zihinsel Sakinlik (Anksiyete/Stres)
+        { id: "q5", text: "Karşılaştığım küçük pürüzleri bugün sakinlikle çözebildim.", category: "ruh_sagligi", reverse: false, pairId: 3 },
+        { id: "q6", text: "Normalde önemsemeyeceğim ufak tefek şeyler bugün gereğinden fazla canımı sıktı.", category: "ruh_sagligi", reverse: true, pairId: 3 }, // Dolaylı anksiyete
+        
+        // Dolaylı/Bilinçaltı Bağımsız Sorular
+        { id: "q7", text: "Bugün kaslarımda (boyun, omuz, çene) istemsiz bir gerginlik hissettim.", category: "ruh_sagligi", reverse: true, pairId: null }, // Fiziksel anksiyete
+        { id: "q8", text: "Ekip arkadaşlarımla sohbet etmek bugün bana iyi geldi.", category: "ruh_sagligi", reverse: false, pairId: null }
     ];
 
-    // Motivasyon ve Görev Havuzu yapıcı bir dille güncellendi
     const tasks = {
         harika: [
-            "Bugün harika gidiyorsun! Ekip arkadaşlarına bu güzel enerjini yansıt.",
-            "Zihnin berrak görünüyor, bugün odaklanma gerektiren bir araştırmaya vakit ayırmak için harika bir gün.",
-            "Bu dengeyi korumak için bugün sevdiğin bir müziği dinlemeyi veya kitap okumayı unutma."
+            "Bugün harika bir denge yakalamışsın! Ekip arkadaşlarına bu güzel enerjini yansıtarak istasyonun modunu yükseltebilirsin.",
+            "Zihnin berrak görünüyor, bugün planladığın karmaşık bir araştırmaya veya hobiye vakit ayırmak için çok uygun bir gün.",
+            "Bu sakin ve dinç halini korumak için günün sonunda sevdiğin sıcak bir içecekle kendine teşekkür etmeyi unutma."
         ],
         uyku: [
-            "Bugün uyku düzenine biraz daha özen göstermek iyi olabilir. Yatmadan 1 saat önce ekranlardan uzaklaş.",
-            "Uyku kaliteni artırmak için kafein tüketimini bugün erken saatlerde kesmeye çalış.",
-            "Uyuduğun odanın tamamen karanlık olduğundan emin ol ve uyku öncesi hafif bir germe egzersizi yap."
+            "Bugün uyku düzenine biraz daha şefkat göstermek iyi olabilir. Yatmadan en az 1 saat önce mavi ışıktan (ekranlardan) uzaklaş.",
+            "Kaliteli bir gece geçirmek için bugün öğleden sonra kafein alımını sınırlandırmayı deneyebilirsin.",
+            "Yatağa girmeden önce sadece 5 dakikalık basit bir esneme ve derin nefes egzersizi bedenin uykuya geçişini kolaylaştıracaktır."
         ],
         ruh_sagligi: [
-            "Bugün zihnini dinlendirmeye biraz daha vakit ayır. En az 15 dakika gün ışığı lambası altında dinlen.",
-            "Kendini zorlamadan, sadece sevdiğin bir ekip arkadaşınla 10 dakikalık kısa bir sohbet et.",
-            "Bugün haberleri veya stres yaratan dış verileri okumaya ara ver. 5 dakika sadece derin nefes al."
+            "Zihnini dinlendirmeye biraz daha alan aç. Bugün 15 dakika sadece gözlerini kapatıp doğa veya okyanus sesleri dinleyebilirsin.",
+            "Kendini zorunlu hissetmeden, sadece güvendiğin bir ekip arkadaşınla kısa ve samimi bir sohbet etmek yükünü hafifletebilir.",
+            "Bugün iş dışındaki haberleri veya stres yaratan karmaşık verileri okumaya ara ver. Sadece o ana ve kendine odaklan."
         ]
     };
 
@@ -194,13 +205,36 @@
             if (!val) { errorMsg.style.display = 'block'; return; }
             answers[q.id] = parseInt(val);
         }
-        
         errorMsg.style.display = 'none';
 
-        // İki ana kategori için hesaplama yapılıyor
+        // 1. TUTARLILIK (SABOTAJ) KONTROLÜ
+        // Eğer Q(pozitif) + Q(negatif) toplamı 6'dan çok uzaksa kişi yalan söylüyordur veya rastgele basıyordur.
+        let inconsistencyScore = 0;
+        let pairs = { 1: [], 2: [], 3: [] };
+        
+        questions.forEach(q => {
+            if(q.pairId) pairs[q.pairId].push(answers[q.id]);
+        });
+
+        Object.values(pairs).forEach(pair => {
+            if(pair.length === 2) {
+                // Mükemmel tutarlılıkta toplam 6 olmalı. (Örn: Pozitif soruya 5, Negatif soruya 1 verdiyse 5+1=6)
+                let diff = Math.abs((pair[0] + pair[1]) - 6);
+                inconsistencyScore += diff;
+            }
+        });
+
+        let isSabotaged = inconsistencyScore >= 5; // Eşik değer (Rastgele basıldığını gösterir)
+
+        // 2. PUAN HESAPLAMASI (Ters soruları düzelterek)
         let scores = { ruh_sagligi: { t: 0, c: 0 }, uyku: { t: 0, c: 0 } };
-        questions.forEach(q => { 
-            scores[q.category].t += answers[q.id]; 
+        
+        questions.forEach(q => {
+            let val = answers[q.id];
+            // Eğer soru ters kodlanmışsa, puanı tersine çevir (5->1, 4->2, vb.)
+            if(q.reverse) val = 6 - val; 
+            
+            scores[q.category].t += val; 
             scores[q.category].c += 1; 
         });
 
@@ -209,19 +243,31 @@
             uyku: (scores.uyku.t / scores.uyku.c).toFixed(1)
         };
 
-        saveDataLocally(avgScores);
-        displayResults(avgScores);
+        // Tutarsızlık varsa grafiği bozmamak için kaydetmiyoruz veya uyarıyoruz.
+        if(!isSabotaged) {
+            saveDataLocally(avgScores);
+        }
+        
+        displayResults(avgScores, isSabotaged);
     }
 
-    function displayResults(avgScores) {
+    function displayResults(avgScores, isSabotaged) {
         document.getElementById('survey-screen').style.display = 'none';
         document.getElementById('results-screen').style.display = 'block';
         
         const resultsContent = document.getElementById('results-content');
         resultsContent.innerHTML = '';
 
+        if(isSabotaged) {
+            resultsContent.innerHTML += `
+                <div class="result-card status-inconsistent">
+                    <strong>⚠️ Güvenilirlik Uyarısı:</strong> Yanıtların arasında mantıksal çelişkiler tespit ettik. Testi aceleyle veya dikkatsizce doldurmuş olabilir misin? Sonuçların doğruluğu düşük olabilir.
+                </div>
+            `;
+        }
+
         const categories = [
-            { key: 'ruh_sagligi', name: 'Ruh Hali ve Enerji Seviyesi' },
+            { key: 'ruh_sagligi', name: 'Zihinsel Odak ve Enerji' },
             { key: 'uyku', name: 'Uyku Kalitesi ve Düzeni' }
         ];
 
@@ -230,39 +276,33 @@
 
         categories.forEach(cat => {
             const avg = parseFloat(avgScores[cat.key]);
-            const needsCare = avg < 3.0; // 3'ün altı özen gerektirir
+            const needsCare = avg < 3.2; // Eşiği biraz yükselttik, 3.2 altı özen gerektirir
             
-            // Hangi alanda daha çok destek gerekiyorsa görevi ona göre seçeceğiz
             if (avg < lowestScore) {
                 lowestScore = avg;
                 lowestCategory = cat.key;
             }
 
-            const statusText = needsCare ? 'Özen Gösterilmeli' : 'İyi Durumda';
+            const statusText = needsCare ? 'Özen Gösterilmeli' : 'Dengeli / İyi';
 
             resultsContent.innerHTML += `
                 <div class="result-card ${needsCare ? 'status-needs-care' : 'status-good'}">
-                    <strong>${cat.name}:</strong> ${statusText} (Ortalama: ${avg} / 5)
+                    <strong>${cat.name}:</strong> ${statusText} (Skor: ${avg} / 5)
                 </div>
             `;
         });
 
-        // Motivasyon görevini belirle (Eğer puanlar iyiyse "harika" kategorisi)
-        let taskArray = lowestScore < 3.0 ? tasks[lowestCategory] : tasks.harika;
+        let taskArray = lowestScore < 3.2 ? tasks[lowestCategory] : tasks.harika;
         let randomTask = taskArray[Math.floor(Math.random() * taskArray.length)];
         document.getElementById('motivation-text').innerText = randomTask;
     }
 
     function saveDataLocally(scores) {
-        let history = JSON.parse(localStorage.getItem('polarDataV2') || '[]');
-        
+        let history = JSON.parse(localStorage.getItem('polarDataV3') || '[]');
         const today = new Date().toLocaleDateString('tr-TR');
         history.push({ date: today, scores: scores });
-        
         if(history.length > 14) history = history.slice(-14);
-        
-        // Verilerin önceki versiyonla karışmaması için key ismini değiştirdim (polarDataV2)
-        localStorage.setItem('polarDataV2', JSON.stringify(history));
+        localStorage.setItem('polarDataV3', JSON.stringify(history));
     }
 
     function showHistory() {
@@ -270,15 +310,14 @@
         document.getElementById('results-screen').style.display = 'none';
         document.getElementById('history-screen').style.display = 'block';
 
-        const history = JSON.parse(localStorage.getItem('polarDataV2') || '[]');
+        const history = JSON.parse(localStorage.getItem('polarDataV3') || '[]');
         
         if(history.length === 0) {
-            alert("Henüz kaydedilmiş yeni formata uygun bir test sonucunuz bulunmuyor.");
-            location.reload();
-            return;
+            alert("Henüz geçerli bir test sonucunuz bulunmuyor.");
+            location.reload(); return;
         }
 
-        const labels = history.map((item, index) => `Test ${index + 1} (${item.date})`);
+        const labels = history.map((item, index) => `${item.date}`);
         const dataRuhSagligi = history.map(item => item.scores.ruh_sagligi);
         const dataUyku = history.map(item => item.scores.uyku);
 
@@ -288,14 +327,11 @@
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'Ruh Hali ve Enerji', data: dataRuhSagligi, borderColor: '#0ea5e9', backgroundColor: '#0ea5e9', tension: 0.3 },
-                    { label: 'Uyku Kalitesi', data: dataUyku, borderColor: '#8b5cf6', backgroundColor: '#8b5cf6', tension: 0.3 }
+                    { label: 'Zihinsel Enerji', data: dataRuhSagligi, borderColor: '#7a9b76', backgroundColor: '#7a9b76', tension: 0.4, borderWidth: 3 },
+                    { label: 'Uyku Kalitesi', data: dataUyku, borderColor: '#b07d54', backgroundColor: '#b07d54', tension: 0.4, borderWidth: 3 }
                 ]
             },
-            options: {
-                responsive: true,
-                scales: { y: { min: 1, max: 5, title: { display: true, text: 'Ortalama Puan' } } }
-            }
+            options: { responsive: true, scales: { y: { min: 1, max: 5 } } }
         });
     }
 </script>
