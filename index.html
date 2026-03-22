@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PolarMind Ön Tarama ve Takip</title>
+    <title>Kutup Zihin - Günlük Takip</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
+            /* Sage Green Paleti */
             --bg-color: #f4f7f4;          
             --card-bg: #ffffff;
             --primary: #7a9b76;           
@@ -35,7 +36,35 @@
             border-radius: 20px; box-shadow: 0 12px 30px rgba(122, 155, 118, 0.1);
         }
 
-        h1 { color: var(--primary); font-size: 26px; text-align: center; margin-bottom: 5px; letter-spacing: -0.5px; }
+        /* YENİ LOGO KONTEYNERİ */
+        #logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        #app-logo {
+            max-width: 100%;       /* Taşmasını önler */
+            max-height: 100px;     /* Profesyonel bir yükseklik sınırı */
+            height: auto;
+            width: auto;
+            display: inline-block;
+            /* Hafif profesyonel bir "havada durma" gölgesi */
+            filter: drop-shadow(0 4px 6px rgba(122, 155, 118, 0.15));
+            transition: transform 0.3s ease; /* Hafif bir hareket efekti */
+        }
+
+        /* Ekranlardaki diğer başlıklar için stil */
+        h1.screen-title { 
+            color: var(--text-main); 
+            font-size: 22px; 
+            text-align: center; 
+            margin-bottom: 10px; 
+            margin-top: 0;
+            font-weight: 600;
+        }
+
         p.subtitle { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
 
         .question-block { margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border); transition: background 0.3s; border-radius: 8px; }
@@ -72,14 +101,24 @@
         .chart-container { margin-top: 25px; padding: 15px; border: 1px solid var(--border); border-radius: 12px; background: white; }
         .error { color: var(--danger); font-size: 14px; text-align: center; margin-bottom: 15px; display: none; font-weight: 500; }
         .nav-buttons { display: flex; gap: 12px; }
+
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; max-width: 100%; border: none; }
+            button { display: none !important; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container" id="app-container">
     
+    <div id="logo-container">
+        <img src="kutup-zihin-logo.png" alt="Kutup Zihin Logosu" id="app-logo">
+    </div>
+
     <div id="survey-screen">
-        <h1>PolarMind Günlük Takip</h1>
+        <h1 class="screen-title">Günlük Takip</h1>
         <p class="subtitle">Bugünkü hislerinizi düşünerek 1 (Hiç katılmıyorum) ile 5 (Çok katılıyorum) arasında puanlayın.</p>
         <div class="error" id="error-msg">Lütfen analizin doğruluğu için tüm soruları yanıtlayın.</div>
         <form id="survey-form"></form>
@@ -90,7 +129,7 @@
     </div>
 
     <div id="results-screen">
-        <h1>Günün Analizi</h1>
+        <h1 class="screen-title">Günün Analizi</h1>
         <p class="subtitle" style="margin-bottom: 15px;">İşte bugünkü genel durumun.</p>
         <div id="results-content"></div>
         <div class="motivation-box">
@@ -104,7 +143,7 @@
     </div>
 
     <div id="history-screen">
-        <h1>Gelişim Grafiği</h1>
+        <h1 class="screen-title">Gelişim Grafiği</h1>
         <p class="subtitle">Son 14 testinizin ortalamaları (Puan yükseldikçe denge artar)</p>
         <div class="chart-container">
             <canvas id="historyChart"></canvas>
@@ -115,6 +154,7 @@
 </div>
 
 <script>
+    // ÖNCEKİ KODLARIN TAMAMI (Soru havuzları, JS mantığı vb.) KORUNMUŞTUR.
     // HAVUZ 1: Çelişki Tespiti İçin 10 Adet Çift Soru (Toplam 20 Soru)
     const pairedQuestions = [
         [{ id: "p1a", text: "Bugün kendimi genel olarak enerjik hissettim.", category: "ruh_sagligi", reverse: false, pairId: 1 },
@@ -194,22 +234,14 @@
 
     // RASTGELE 15 SORU OLUŞTURMA ALGORİTMASI
     function generateRandomTest() {
-        // Çift sorulardan rastgele 5 çift (10 soru) seç
         let shuffledPairs = pairedQuestions.sort(() => 0.5 - Math.random()).slice(0, 5);
-        // Bağımsız sorulardan rastgele 5 soru seç
         let shuffledSingles = singleQuestions.sort(() => 0.5 - Math.random()).slice(0, 5);
-        
-        // Hepsini tek bir diziye topla
         shuffledPairs.forEach(pair => { currentTestQuestions.push(pair[0]); currentTestQuestions.push(pair[1]); });
         currentTestQuestions.push(...shuffledSingles);
-        
-        // Son 15 soruyu ekrana basılmadan önce kendi içinde karıştır
         currentTestQuestions = currentTestQuestions.sort(() => 0.5 - Math.random());
     }
 
     const form = document.getElementById('survey-form');
-
-    // Sayfa yüklendiğinde testi oluştur ve ekrana bas
     generateRandomTest();
     currentTestQuestions.forEach((q, index) => {
         const questionHtml = `
@@ -233,7 +265,6 @@
         const formData = new FormData(form);
         const errorMsg = document.getElementById('error-msg');
         let answers = {};
-        
         for (let q of currentTestQuestions) {
             const val = formData.get(q.id);
             if (!val) { errorMsg.style.display = 'block'; return; }
@@ -241,58 +272,44 @@
         }
         errorMsg.style.display = 'none';
 
-        // 1. TUTARLILIK (SABOTAJ) KONTROLÜ
         let inconsistencyScore = 0;
         let pairs = {}; 
-        
-        // Sadece bu testte var olan çiftleri grupla
         currentTestQuestions.forEach(q => {
             if(q.pairId) {
                 if(!pairs[q.pairId]) pairs[q.pairId] = [];
                 pairs[q.pairId].push(answers[q.id]);
             }
         });
-
-        // Eşleşen çiftler üzerinden fark hesapla (Mükemmel zıtlıkta toplam 6 etmeli)
         Object.values(pairs).forEach(pair => {
             if(pair.length === 2) {
                 let diff = Math.abs((pair[0] + pair[1]) - 6);
                 inconsistencyScore += diff;
             }
         });
-
-        // 5 çift üzerinden eşik değer belirle (Puan yüksekse kişi rastgele basmıştır)
         let isSabotaged = inconsistencyScore >= 5; 
 
-        // 2. PUAN HESAPLAMASI (Ters soruları düzelterek)
         let scores = { ruh_sagligi: { t: 0, c: 0 }, uyku: { t: 0, c: 0 } };
-        
         currentTestQuestions.forEach(q => {
             let val = answers[q.id];
-            if(q.reverse) val = 6 - val; // Ters soruların mantığını düzelt
-            
+            if(q.reverse) val = 6 - val; 
             scores[q.category].t += val; 
             scores[q.category].c += 1; 
         });
 
-        // Kategoride soru denk gelmemiş olma ihtimaline karşı kontrol (Çok düşük ihtimal ama kodun çökmesini önler)
         const avgScores = {
             ruh_sagligi: scores.ruh_sagligi.c > 0 ? (scores.ruh_sagligi.t / scores.ruh_sagligi.c).toFixed(1) : 3.0,
             uyku: scores.uyku.c > 0 ? (scores.uyku.t / scores.uyku.c).toFixed(1) : 3.0
         };
 
         if(!isSabotaged) { saveDataLocally(avgScores); }
-        
         displayResults(avgScores, isSabotaged);
     }
 
     function displayResults(avgScores, isSabotaged) {
         document.getElementById('survey-screen').style.display = 'none';
         document.getElementById('results-screen').style.display = 'block';
-        
         const resultsContent = document.getElementById('results-content');
         resultsContent.innerHTML = '';
-
         if(isSabotaged) {
             resultsContent.innerHTML += `
                 <div class="result-card status-inconsistent">
@@ -300,30 +317,19 @@
                 </div>
             `;
         }
-
-        const categories = [
-            { key: 'ruh_sagligi', name: 'Zihinsel Odak ve Enerji' },
-            { key: 'uyku', name: 'Uyku Kalitesi ve Düzeni' }
-        ];
-
-        let lowestCategory = null;
-        let lowestScore = 5;
-
+        const categories = [{ key: 'ruh_sagligi', name: 'Zihinsel Odak ve Enerji' }, { key: 'uyku', name: 'Uyku Kalitesi ve Düzeni' }];
+        let lowestCategory = null; let lowestScore = 5;
         categories.forEach(cat => {
             const avg = parseFloat(avgScores[cat.key]);
             const needsCare = avg < 3.2; 
-            
             if (avg < lowestScore) { lowestScore = avg; lowestCategory = cat.key; }
-
             const statusText = needsCare ? 'Özen Gösterilmeli' : 'Dengeli / İyi';
-
             resultsContent.innerHTML += `
                 <div class="result-card ${needsCare ? 'status-needs-care' : 'status-good'}">
                     <strong>${cat.name}:</strong> ${statusText} (Skor: ${avg} / 5)
                 </div>
             `;
         });
-
         let taskArray = lowestScore < 3.2 ? tasks[lowestCategory] : tasks.harika;
         let randomTask = taskArray[Math.floor(Math.random() * taskArray.length)];
         document.getElementById('motivation-text').innerText = randomTask;
@@ -341,18 +347,14 @@
         document.getElementById('survey-screen').style.display = 'none';
         document.getElementById('results-screen').style.display = 'none';
         document.getElementById('history-screen').style.display = 'block';
-
         const history = JSON.parse(localStorage.getItem('polarDataV4') || '[]');
-        
         if(history.length === 0) {
             alert("Henüz geçerli bir test sonucunuz bulunmuyor. Lütfen çelişkisiz bir test tamamlayın.");
             location.reload(); return;
         }
-
         const labels = history.map((item, index) => `${item.date}`);
         const dataRuhSagligi = history.map(item => item.scores.ruh_sagligi);
         const dataUyku = history.map(item => item.scores.uyku);
-
         const ctx = document.getElementById('historyChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
